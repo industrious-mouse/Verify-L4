@@ -1,16 +1,16 @@
 <?php
 namespace Toddish\Verify;
 
-use Illuminate\Hashing\HasherInterface;
 use Illuminate\Auth\UserProviderInterface;
-use Illuminate\Auth\UserInterface;
+use Illuminate\Contracts\Hashing\Hasher as HasherContract;
+use Illuminate\Contracts\Auth\User as UserContract;
 
 class VerifyUserProvider implements UserProviderInterface
 {
     /**
      * The hasher implementation.
      *
-     * @var Illuminate\Hashing\HasherInterface
+     * @var \Illuminate\Contracts\Hashing\Hasher
      */
     protected $hasher;
 
@@ -21,36 +21,38 @@ class VerifyUserProvider implements UserProviderInterface
      */
     protected $model;
 
-    /**
-     * Create a new database user provider.
-     *
-     * @param  Illuminate\Hashing\HasherInterface  $hasher
-     * @param  string  $model
-     * @return void
-     */
-    public function __construct(HasherInterface $hasher, $model)
+	/**
+	 * Create a new database user provider.
+	 *
+	 * @param HasherContract 		$hasher
+	 * @param string				$model
+	 */
+    public function __construct(HasherContract $hasher, $model)
     {
         $this->model = $model;
         $this->hasher = $hasher;
     }
 
-    /**
-     * Retrieve a user by their unique identifier.
-     *
-     * @param  mixed  $identifier
-     * @return Illuminate\Auth\UserInterface|null
-     */
+	/**
+	 * Retrieve a user by their unique identifier.
+	 *
+	 * @param  mixed $identifier
+	 *
+	 * @return \Illuminate\Contracts\Auth\User|null
+	 */
     public function retrieveByID($identifier)
     {
         return $this->createModel()->newQuery()->find($identifier);
     }
 
-    /**
-     * Retrieve a user by the given credentials.
-     *
-     * @param  array  $credentials
-     * @return Illuminate\Auth\UserInterface|null
-     */
+	/**
+	 * Retrieve a user by the given credentials.
+	 *
+	 * @param  array $credentials
+	 *
+	 * @throws UserNotFoundException
+	 * @return \Illuminate\Contracts\Auth\User|null
+	 */
     public function retrieveByCredentials(array $credentials)
     {
         // Are we checking by identifier?
@@ -99,14 +101,19 @@ class VerifyUserProvider implements UserProviderInterface
         return $query->first();
     }
 
-    /**
-     * Validate a user against the given credentials.
-     *
-     * @param  Illuminate\Auth\UserInterface  $user
-     * @param  array  $credentials
-     * @return bool
-     */
-    public function validateCredentials(UserInterface $user, array $credentials)
+	/**
+	 * Validate a user against the given credentials.
+	 *
+	 * @param 	UserContract			$user
+	 * @param	array					$credentials
+	 *
+	 * @throws UserDeletedException
+	 * @throws UserDisabledException
+	 * @throws UserPasswordIncorrectException
+	 * @throws UserUnverifiedException
+	 * @return bool
+	 */
+    public function validateCredentials(UserContract $user, array $credentials)
     {
         $plain = $credentials['password'];
         // Is user password is valid?
@@ -135,7 +142,7 @@ class VerifyUserProvider implements UserProviderInterface
     /**
      * Create a new instance of the model.
      *
-     * @return Illuminate\Database\Eloquent\Model
+     * @return \Illuminate\Database\Eloquent\Model
      */
     public function createModel()
     {
@@ -167,14 +174,15 @@ class VerifyUserProvider implements UserProviderInterface
                         ->first();
     }
 
-    /**
-     * Update the "remember me" token for the given user in storage.
-     *
-     * @param  \Illuminate\Auth\UserInterface  $user
-     * @param  string  $token
-     * @return void
-     */
-    public function updateRememberToken(UserInterface $user, $token)
+	/**
+	 * Update the "remember me" token for the given user in storage.
+	 *
+	 * @param 	UserContract 			$user
+	 * @param  	string 					$token
+	 *
+	 * @return void
+	 */
+    public function updateRememberToken(UserContract $user, $token)
     {
         $user->setRememberToken($token);
 
