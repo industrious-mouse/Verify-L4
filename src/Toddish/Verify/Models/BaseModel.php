@@ -15,12 +15,13 @@ class BaseModel extends Eloquent
     /**
      * Create a new Eloquent model instance.
      *
-     * @param  array  $attributes
-     * @return void
+     * @param  array $attributes
      */
     public function __construct(array $attributes = array())
     {
         parent::__construct($attributes);
+
+        $this->attributes = $attributes;
 
         // Set the prefix
         $this->prefix = \Config::get('verify::prefix', 'test');

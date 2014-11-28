@@ -2,6 +2,7 @@
 namespace Toddish\Verify;
 
 use Illuminate\Auth\UserProviderInterface;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Hashing\Hasher as HasherContract;
 use Illuminate\Contracts\Auth\User as UserContract;
 
@@ -57,6 +58,7 @@ class VerifyUserProvider implements UserProviderInterface
     {
         // Are we checking by identifier?
         if (array_key_exists('identifier', $credentials)) {
+
             // Grab each val to be identifed against
             foreach (\Config::get('verify::identified_by') as $identified_by) {
                 // Create a new query for each check
@@ -101,19 +103,18 @@ class VerifyUserProvider implements UserProviderInterface
         return $query->first();
     }
 
-	/**
-	 * Validate a user against the given credentials.
-	 *
-	 * @param 	UserContract			$user
-	 * @param	array					$credentials
-	 *
-	 * @throws UserDeletedException
-	 * @throws UserDisabledException
-	 * @throws UserPasswordIncorrectException
-	 * @throws UserUnverifiedException
-	 * @return bool
-	 */
-    public function validateCredentials(UserContract $user, array $credentials)
+    /**
+     * Validate a user against the given credentials.
+     *
+     * @param 	Authenticatable         $user
+     * @param	array					$credentials
+     * @throws  UserDeletedException
+     * @throws  UserDisabledException
+     * @throws  UserPasswordIncorrectException
+     * @throws  UserUnverifiedException
+     * @return  bool
+     */
+    public function validateCredentials(Authenticatable $user, array $credentials)
     {
         $plain = $credentials['password'];
         // Is user password is valid?
@@ -147,7 +148,9 @@ class VerifyUserProvider implements UserProviderInterface
     public function createModel()
     {
         $class = '\\'.ltrim($this->model, '\\');
-        $object = new $class;
+	
+	// @todo Fix this.
+        $object = new $class([]);
 
         if ( is_a( $object, '\Illuminate\Support\Facades\Facade' ) )
         {
@@ -174,15 +177,15 @@ class VerifyUserProvider implements UserProviderInterface
                         ->first();
     }
 
-	/**
-	 * Update the "remember me" token for the given user in storage.
-	 *
-	 * @param 	UserContract 			$user
-	 * @param  	string 					$token
-	 *
-	 * @return void
-	 */
-    public function updateRememberToken(UserContract $user, $token)
+    /**
+     * Update the "remember me" token for the given user in storage.
+     *
+     * @param 	Authenticatable 		$user
+     * @param  	string 					$token
+     *
+     * @return void
+     */
+    public function updateRememberToken(Authenticatable $user, $token)
     {
         $user->setRememberToken($token);
 

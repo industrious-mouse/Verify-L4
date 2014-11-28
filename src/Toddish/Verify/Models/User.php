@@ -1,22 +1,23 @@
 <?php
 namespace Toddish\Verify\Models;
 
-use Illuminate\Auth\UserTrait;
-use Illuminate\Auth\Reminders\RemindableTrait;
-use Illuminate\Database\Eloquent\SoftDeletingTrait;
-use Illuminate\Contracts\Auth\User as UserContract;
-use Illuminate\Contracts\Auth\Remindable as RemindableContract;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Contracts\Auth\Authenticatable as UserContract;
+use Illuminate\Auth\Passwords\CanResetPassword;
+use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
-class User extends BaseModel implements UserContract, RemindableContract
+abstract class User extends BaseModel implements UserContract, CanResetPasswordContract
 {
-    use UserTrait, RemindableTrait, SoftDeletingTrait;
+    use SoftDeletes, CanResetPassword;
 
     /**
      * The attributes excluded from the model's JSON form.
      *
      * @var array
      */
-    protected $hidden = ['password', 'salt'];
+    protected $hidden = ['password', 'salt', 'remember_token'];
 
     /**
      * Dates
@@ -42,6 +43,57 @@ class User extends BaseModel implements UserContract, RemindableContract
     protected $to_check_cache;
 
     /**
+     * Get the unique identifier for the user.
+     *
+     * @return mixed
+     */
+    public function getAuthIdentifier()
+    {
+        return $this->attributes['id'];
+    }
+
+    /**
+     * Get the password for the user.
+     *
+     * @return string
+     */
+    public function getAuthPassword()
+    {
+        return $this->attributes['password'];
+    }
+
+    /**
+     * Get the token value for the "remember me" session.
+     *
+     * @return string
+     */
+    public function getRememberToken()
+    {
+        return $this->attributes[$this->getRememberTokenName()];
+    }
+
+    /**
+     * Set the token value for the "remember me" session.
+     *
+     * @param  string  $value
+     * @return void
+     */
+    public function setRememberToken($value)
+    {
+        $this->attributes[$this->getRememberTokenName()] = $value;
+    }
+
+    /**
+     * Get the column name for the "remember me" token.
+     *
+     * @return string
+     */
+    public function getRememberTokenName()
+    {
+        return 'remember_token';
+    }
+
+    /**
      * Roles
      *
      * @return object
@@ -62,8 +114,8 @@ class User extends BaseModel implements UserContract, RemindableContract
      */
     public function setPasswordAttribute($password)
     {
-        $salt = md5(\Str::random(64) . time());
-        $hashed = \Hash::make($salt . $password);
+        $salt = md5(Str::random(64) . time());
+        $hashed = Hash::make($salt . $password);
 
         $this->attributes['password'] = $hashed;
         $this->attributes['salt'] = $salt;
