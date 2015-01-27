@@ -1,6 +1,7 @@
 <?php
 namespace Toddish\Verify;
 
+use Auth, Config;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Hashing\BcryptHasher;
 use Illuminate\Auth\Guard;
@@ -21,19 +22,23 @@ class VerifyServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        $this->package('toddish/verify');
+		$configPath = __DIR__ . '/../../config/verify.php';
+		$this->mergeConfigFrom('verify', $configPath);
+		$this->publishes([
+			$configPath => config_path('vendor/verify.php')
+		]);
 
-        \Auth::extend('verify', function()
-        {
-            return new Guard(
-                new VerifyUserProvider(
-                    new BcryptHasher,
-                    \Config::get('auth.model')
-                ),
-                \App::make('session.store')
-            );
-        });
-    }
+		Auth::extend('verify', function()
+		{
+			return new Guard(
+				new VerifyUserProvider(
+					new BcryptHasher,
+					Config::get('auth.model')
+				),
+				\App::make('session.store')
+			);
+		});
+	}
 
     /**
      * Register the service provider.

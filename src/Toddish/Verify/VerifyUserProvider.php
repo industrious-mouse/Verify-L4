@@ -1,12 +1,12 @@
 <?php
 namespace Toddish\Verify;
 
-use Illuminate\Auth\UserProviderInterface;
 use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Contracts\Auth\UserProvider;
 use Illuminate\Contracts\Hashing\Hasher as HasherContract;
 use Illuminate\Contracts\Auth\User as UserContract;
 
-class VerifyUserProvider implements UserProviderInterface
+class VerifyUserProvider implements UserProvider
 {
     /**
      * The hasher implementation.
@@ -60,7 +60,7 @@ class VerifyUserProvider implements UserProviderInterface
         if (array_key_exists('identifier', $credentials)) {
 
             // Grab each val to be identifed against
-            foreach (\Config::get('verify::identified_by') as $identified_by) {
+            foreach (config('verify.identified_by') as $identified_by) {
                 // Create a new query for each check
                 $query = $this->createModel()->newQuery();
                 // Start off the query with the first identified_by value
@@ -148,7 +148,7 @@ class VerifyUserProvider implements UserProviderInterface
     public function createModel()
     {
         $class = '\\'.ltrim($this->model, '\\');
-	
+
 	// @todo Fix this.
         $object = new $class([]);
 

@@ -5,7 +5,7 @@ class VerifyUserSeeder extends Seeder {
 	public function __construct()
 	{
 		// Get the prefix
-		$this->prefix = Config::get('verify::prefix', '');
+		$this->prefix = config('verify.prefix', '');
 	}
 
 	public function run()
@@ -14,7 +14,7 @@ class VerifyUserSeeder extends Seeder {
 		$prefix = $this->prefix;
 
 		$role_id = DB::table($prefix.'roles')->insertGetId([
-			'name' => Config::get('verify::super_admin'),
+			'name' => config('verify.super_admin'),
 			'level' => 10,
 			'created_at' => date('Y-m-d H:i:s'),
 			'updated_at' => date('Y-m-d H:i:s')

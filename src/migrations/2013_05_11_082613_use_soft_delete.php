@@ -7,7 +7,7 @@ class UseSoftDelete extends Migration {
     public function __construct()
     {
         // Get the prefix
-        $this->prefix = Config::get('verify::prefix', '');
+        $this->prefix = config('verify.prefix', '');
     }
 
     /**

@@ -101,7 +101,7 @@ abstract class User extends BaseModel implements UserContract, CanResetPasswordC
     public function roles()
     {
         return $this->belongsToMany(
-                \Config::get('verify::models.role'),
+                config('verify.models.role'),
                 $this->prefix.'role_user'
             )
             ->withTimestamps();
@@ -165,7 +165,7 @@ abstract class User extends BaseModel implements UserContract, CanResetPasswordC
         // Are we a super admin?
         foreach ($to_check->roles as $role)
         {
-            if ($role->name === \Config::get('verify::super_admin'))
+            if ($role->name === config('verify.super_admin'))
             {
                 return TRUE;
             }
