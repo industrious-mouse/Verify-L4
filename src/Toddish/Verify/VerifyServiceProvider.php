@@ -23,9 +23,11 @@ class VerifyServiceProvider extends ServiceProvider
     public function boot()
     {
 		$configPath = __DIR__ . '/../../config/verify.php';
+
 		$this->mergeConfigFrom($configPath, 'verify');
+
 		$this->publishes([
-			$configPath => config_path('vendor/verify.php')
+			$configPath => config_path('verify.php')
 		]);
 
 		Auth::extend('verify', function()
