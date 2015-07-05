@@ -14,7 +14,7 @@
     "homepage": "http://docs.toddish.co.uk/verify-l4/",
     "require": {
         "php": ">=5.4.0",
-        "illuminate/support": "5.0.*"
+        "illuminate/support": "5.*"
     },
     "autoload": {
         "psr-4": {
